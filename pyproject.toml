@@ -26,9 +26,12 @@ classifiers = [
     "Topic :: Documentation",
 ]
 dependencies = [
-    "django-smallstack @ git+https://github.com/emichaud/django-smallstack.git",
+    "django-smallstack>=0.8",
     "markdown>=3.5",
 ]
+
+[tool.uv.sources]
+django-smallstack = { git = "https://github.com/emichaud/django-smallstack.git" }
 
 [project.optional-dependencies]
 dev = [
