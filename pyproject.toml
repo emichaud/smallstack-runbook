@@ -30,9 +30,6 @@ dependencies = [
     "markdown>=3.5",
 ]
 
-[tool.uv.sources]
-django-smallstack = { git = "https://github.com/emichaud/django-smallstack.git" }
-
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
