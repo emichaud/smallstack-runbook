@@ -1,0 +1,150 @@
+{% extends "runbook/base.html" %}
+{% load static %}
+
+{% block title %}Runbooks{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'runbook/runbook.css' %}">
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header-bleed page-header-with-actions">
+    <div class="page-header-content">
+        <h1>Runbooks</h1>
+        <p class="page-subtitle">{{ total_runbooks }} runbook{{ total_runbooks|pluralize }} &mdash; {{ total_docs }} document{{ total_docs|pluralize }} across {{ total_sections }} section{{ total_sections|pluralize }}</p>
+        <nav style="margin-top: 0.5rem; font-size: 0.8rem;">
+            <span style="color: var(--body-fg);">Runbooks</span>
+        </nav>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'runbook:runbook_create' %}" class="btn-primary">New Runbook</a>
+        <a href="{% url 'runbook:search' %}" class="btn-secondary">Search</a>
+        <button type="button" class="btn-secondary"
+            data-download-url="{% url 'runbook:download_zip' %}"
+            data-download-desc="all runbooks as a ZIP archive"
+            onclick="confirmDownload(this)">Download All</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stat-cards" style="margin-bottom: 24px;">
+    <div class="stat-card stat-card-clickable"
+         hx-get="{% url 'runbook:stat_detail' 'runbooks' %}"
+         hx-target="#stat-modal-body"
+         onclick="openStatModal('All Runbooks')">
+        <div class="stat-card-value">{{ total_runbooks }}</div>
+        <div class="stat-card-label">Runbooks</div>
+    </div>
+    <div class="stat-card stat-card-clickable"
+         hx-get="{% url 'runbook:stat_detail' 'documents' %}"
+         hx-target="#stat-modal-body"
+         onclick="openStatModal('All Documents')">
+        <div class="stat-card-value">{{ total_docs }}</div>
+        <div class="stat-card-label">Documents</div>
+    </div>
+    <div class="stat-card stat-card-clickable"
+         hx-get="{% url 'runbook:stat_detail' 'recent' %}"
+         hx-target="#stat-modal-body"
+         onclick="openStatModal('Recent Uploads (7 Days)')">
+        <div class="stat-card-value">{{ recent_uploads }}</div>
+        <div class="stat-card-label">Recent (7d)</div>
+    </div>
+    <div class="stat-card stat-card-clickable"
+         hx-get="{% url 'runbook:stat_detail' 'types' %}"
+         hx-target="#stat-modal-body"
+         onclick="openStatModal('Documents by Type')">
+        {% for tc in type_counts %}
+        <span style="font-size: 0.85rem; font-weight: 600; color: var(--primary);">{{ tc.count }}</span>
+        <span style="font-size: 0.75rem; color: var(--body-quiet-color);">.{{ tc.file_type }}</span>
+        {% if not forloop.last %}&nbsp;{% endif %}
+        {% empty %}
+        <span style="font-size: 0.85rem; color: var(--body-quiet-color);">No docs yet</span>
+        {% endfor %}
+        <div class="stat-card-label" style="margin-top: 4px;">By Type</div>
+    </div>
+</div>
+
+<!-- Two-column layout -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;">
+
+    <!-- Runbooks list -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>All Runbooks</h2>
+            <a href="{% url 'runbook:runbook_create' %}" class="btn-primary btn-sm">New</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if runbooks %}
+            <table class="crud-table">
+                <thead>
+                    <tr>
+                        <th>Runbook</th>
+                        <th style="text-align: center;">Sections</th>
+                        <th style="text-align: center;">Documents</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rb in runbooks %}
+                    <tr>
+                        <td>
+                            <a href="{{ rb.get_absolute_url }}">
+                                {% if rb.icon %}<span style="margin-right: 4px;">{{ rb.icon }}</span>{% endif %}
+                                {{ rb.name }}
+                            </a>
+                            {% if rb.description %}
+                            <div style="font-size: 0.8rem; color: var(--body-quiet-color); margin-top: 2px;">{{ rb.description|truncatechars:80 }}</div>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-secondary">{{ rb.section_count }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge badge-secondary">{{ rb.doc_count }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="padding: 24px; color: var(--body-quiet-color); text-align: center;">No runbooks yet. <a href="{% url 'runbook:runbook_create' %}">Create your first runbook</a>.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Documents -->
+    <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Recent Documents</h2>
+            <a href="{% url 'runbook:document_list' %}" class="btn-outline btn-sm">All</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if recent_docs %}
+            {% for doc in recent_docs %}
+            <a href="{{ doc.get_absolute_url }}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; text-decoration: none; color: var(--body-fg); border-bottom: 1px solid var(--hairline-color);">
+                <div>
+                    <span>{{ doc.title }}</span>
+                    <span class="badge badge-secondary" style="margin-left: 6px;">.{{ doc.file_type }}</span>
+                </div>
+                <span style="font-size: 0.8rem; color: var(--body-quiet-color);">v{{ doc.version }}</span>
+            </a>
+            {% endfor %}
+            {% else %}
+            <p style="padding: 16px; color: var(--body-quiet-color);">No documents yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick links -->
+<div style="display: flex; gap: 12px;">
+    <a href="{% url 'runbook:document_list' %}" class="btn-secondary">All Documents</a>
+    <a href="{% url 'runbook:search' %}" class="btn-secondary">Search</a>
+</div>
+
+{% include "runbook/includes/stat_modal.html" %}
+{% include "runbook/includes/download_modal.html" %}
+{% endblock %}

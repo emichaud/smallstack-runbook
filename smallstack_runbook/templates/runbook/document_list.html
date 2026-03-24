@@ -1,0 +1,96 @@
+{% extends "runbook/base.html" %}
+{% load static %}
+
+{% block title %}Documents — Runbook{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'runbook/runbook.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="page-header-with-actions" style="background: color-mix(in srgb, var(--primary) 15%, var(--body-bg)); margin: -24px -24px 24px -24px; padding: 24px; border-radius: 8px 8px 0 0;">
+    <div class="page-header-content">
+        <h1>Documents</h1>
+        <nav style="margin-top: 0.5rem; font-size: 0.8rem;">
+            <a href="{% url 'runbook:dashboard' %}" style="color: var(--body-quiet-color); text-decoration: none;">Runbook</a>
+            <span style="color: var(--body-quiet-color); margin: 0 0.3rem;">/</span>
+            <span style="color: var(--body-fg);">Documents</span>
+        </nav>
+    </div>
+    <a href="{% url 'runbook:dashboard' %}" class="btn" style="background: color-mix(in srgb, var(--primary) 20%, var(--body-bg)); color: var(--primary); padding: 0.5rem 1rem; border: none; border-radius: var(--radius-sm, 4px); text-decoration: none; font-size: 0.85rem;">Runbooks</a>
+</div>
+
+<!-- Filters -->
+<div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+    <form method="get" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search documents..." class="vTextField" style="width: 200px;">
+        <select name="section" style="padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--hairline-color); background: var(--body-bg); color: var(--body-fg);">
+            <option value="">All Sections</option>
+            {% for sec in sections %}
+            <option value="{{ sec.slug }}" {% if active_section == sec.slug %}selected{% endif %}>{{ sec.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="type" style="padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--hairline-color); background: var(--body-bg); color: var(--body-fg);">
+            <option value="">All Types</option>
+            <option value="md" {% if active_type == "md" %}selected{% endif %}>.md</option>
+            <option value="docx" {% if active_type == "docx" %}selected{% endif %}>.docx</option>
+            <option value="pdf" {% if active_type == "pdf" %}selected{% endif %}>.pdf</option>
+        </select>
+        <button type="submit" class="button button-small">Filter</button>
+        {% if search_query or active_section or active_type %}
+        <a href="{% url 'runbook:document_list' %}" class="button button-small button-secondary">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        {% if documents %}
+        <table class="table-plain" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align: left; padding: 8px 16px;">Title</th>
+                    <th style="text-align: left; padding: 8px 16px;">Section</th>
+                    <th style="text-align: center; padding: 8px 16px;">Type</th>
+                    <th style="text-align: right; padding: 8px 16px;">Version</th>
+                    <th style="text-align: left; padding: 8px 16px;">Uploaded By</th>
+                    <th style="text-align: left; padding: 8px 16px;">Updated</th>
+                    <th style="text-align: right; padding: 8px 16px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td style="padding: 8px 16px;"><a href="{{ doc.get_absolute_url }}">{{ doc.title }}</a></td>
+                    <td style="padding: 8px 16px; font-size: 0.85rem; color: var(--body-quiet-color);">{{ doc.section.name|default:"—" }}</td>
+                    <td style="text-align: center; padding: 8px 16px;"><span class="badge badge-secondary">.{{ doc.file_type }}</span></td>
+                    <td style="text-align: right; padding: 8px 16px; font-size: 0.85rem;">v{{ doc.version }}</td>
+                    <td style="padding: 8px 16px; font-size: 0.85rem;">{{ doc.uploaded_by|default:"—" }}</td>
+                    <td style="padding: 8px 16px; font-size: 0.85rem;">{{ doc.updated_at|date:"M d, Y" }}</td>
+                    <td style="text-align: right; padding: 8px 16px;">
+                        <a href="{% url 'runbook:document_update' doc.pk %}" class="button button-small button-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_paginated %}
+        <div style="padding: 12px 16px; display: flex; justify-content: center; gap: 8px;">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if active_section %}&section={{ active_section }}{% endif %}{% if active_type %}&type={{ active_type }}{% endif %}" class="button button-small button-secondary">Previous</a>
+            {% endif %}
+            <span style="padding: 6px 12px; color: var(--body-quiet-color); font-size: 0.85rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if active_section %}&section={{ active_section }}{% endif %}{% if active_type %}&type={{ active_type }}{% endif %}" class="button button-small button-secondary">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <p style="padding: 24px; color: var(--body-quiet-color); text-align: center;">No documents found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

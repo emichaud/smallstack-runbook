@@ -1,0 +1,236 @@
+/* smallstack-runbook styles
+ *
+ * Requires SmallStack's theme.css and components.css for CSS variables
+ * (--primary, --body-bg, --body-fg, etc.) and component classes
+ * (.card, .btn-primary, .crud-table, etc.).
+ */
+
+/* ── Focus mode ──────────────────────────────────────────────── */
+body.runbook-focus-mode .runbook-toc-sidebar {
+    display: none !important;
+}
+
+body.runbook-focus-mode .runbook-layout {
+    grid-template-columns: 1fr !important;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ── Rendered content ──────────────────────────────────────────── */
+.runbook-content h1,
+.runbook-content h2,
+.runbook-content h3,
+.runbook-content h4 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--body-fg);
+}
+
+.runbook-content h1:first-child,
+.runbook-content h2:first-child,
+.runbook-content h3:first-child {
+    margin-top: 0;
+}
+
+.runbook-content p {
+    margin-bottom: 0.75em;
+    line-height: 1.6;
+}
+
+.runbook-content pre {
+    background: color-mix(in srgb, var(--primary) 5%, var(--body-bg));
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin-bottom: 1em;
+}
+
+.runbook-content code {
+    font-size: 0.9em;
+    background: color-mix(in srgb, var(--primary) 8%, var(--body-bg));
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.runbook-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.runbook-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+.runbook-content table th,
+.runbook-content table td {
+    padding: 8px 12px;
+    border: 1px solid var(--hairline-color);
+    text-align: left;
+}
+
+.runbook-content table th {
+    background: color-mix(in srgb, var(--primary) 8%, var(--body-bg));
+    font-weight: 600;
+}
+
+.runbook-content blockquote {
+    border-left: 3px solid var(--primary);
+    padding: 8px 16px;
+    margin: 0 0 1em 0;
+    color: var(--body-quiet-color);
+    background: color-mix(in srgb, var(--primary) 5%, var(--body-bg));
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.runbook-content ul,
+.runbook-content ol {
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+}
+
+.runbook-content li {
+    margin-bottom: 0.3em;
+    line-height: 1.5;
+}
+
+.runbook-content img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--radius-sm);
+}
+
+/* ── Slide viewer ──────────────────────────────────────────────── */
+.slide-progress {
+    height: 4px;
+    background: var(--hairline-color);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.slide-progress-bar {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.slide-deck .slide-card {
+    display: none;
+}
+
+.slide-deck .slide-card.active {
+    display: block;
+}
+
+/* ── Step viewer ───────────────────────────────────────────────── */
+.step-timeline {
+    position: relative;
+    padding-left: 40px;
+}
+
+.step-timeline::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--hairline-color);
+}
+
+.step-item {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.step-marker {
+    position: absolute;
+    left: -40px;
+    top: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--button-fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    z-index: 1;
+}
+
+.step-content {
+    padding-left: 16px;
+}
+
+.step-note {
+    margin: 0 16px 16px;
+    padding: 10px 14px;
+    background: color-mix(in srgb, var(--primary) 8%, var(--body-bg));
+    border-left: 3px solid var(--primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 0.9rem;
+}
+
+/* ── Badges ────────────────────────────────────────────────────── */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--primary);
+    color: var(--button-fg);
+}
+
+.badge-secondary {
+    background: color-mix(in srgb, var(--primary) 15%, var(--body-bg));
+    color: var(--body-fg);
+}
+
+/* ── Markdown editor ───────────────────────────────────────────── */
+.runbook-editor {
+    width: 100%;
+    font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding: 16px;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+    tab-size: 4;
+}
+
+.runbook-editor:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+    border-color: var(--primary);
+}
+
+/* ── TOC sidebar ───────────────────────────────────────────────── */
+.runbook-content .toc ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.runbook-content .toc ul ul {
+    padding-left: 16px;
+}
+
+.runbook-content .toc a {
+    text-decoration: none;
+    color: var(--body-quiet-color);
+    display: block;
+    padding: 3px 0;
+}
+
+.runbook-content .toc a:hover {
+    color: var(--primary);
+}

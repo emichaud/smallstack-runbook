@@ -1,0 +1,103 @@
+{% extends "runbook/base.html" %}
+{% load static %}
+
+{% block title %}Edit — {{ document.title }} — Runbook{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'runbook/runbook.css' %}">
+{% endblock %}
+
+{% block page_header %}
+<div class="page-header-bleed page-header-with-actions">
+    <div class="page-header-content">
+        <h1>Edit Content</h1>
+        <p class="page-subtitle">{{ document.title }} &middot; v{{ document.version }}</p>
+        <nav style="margin-top: 0.5rem; font-size: 0.8rem;">
+            <a href="{% url 'runbook:dashboard' %}" style="color: var(--body-quiet-color); text-decoration: none;">Runbook</a>
+            <span style="color: var(--body-quiet-color); margin: 0 0.3rem;">/</span>
+            <a href="{% url 'runbook:document_detail' document.pk %}" style="color: var(--body-quiet-color); text-decoration: none;">{{ document.title }}</a>
+            <span style="color: var(--body-quiet-color); margin: 0 0.3rem;">/</span>
+            <span style="color: var(--body-fg);">Edit Content</span>
+        </nav>
+    </div>
+    <div class="page-header-actions">
+        <button type="button" id="preview-toggle" onclick="togglePreview()" class="btn-secondary">Preview</button>
+        <button type="submit" form="editor-form" class="btn-primary">Save</button>
+        <a href="{% url 'runbook:document_detail' document.pk %}" class="btn-outline">Cancel</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<form id="editor-form" method="post" action="{% url 'runbook:document_edit_content' document.pk %}">
+    {% csrf_token %}
+    <div id="editor-panel">
+        <textarea id="editor-textarea" name="content" class="runbook-editor" rows="30" spellcheck="false">{{ content }}</textarea>
+    </div>
+</form>
+
+<div id="preview-panel" class="card" style="display: none;">
+    <div class="card-body runbook-content" id="preview-content">
+        <p style="color: var(--body-quiet-color);">Loading preview...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var previewActive = false;
+var previewBtn = document.getElementById('preview-toggle');
+
+function togglePreview() {
+    var editor = document.getElementById('editor-panel');
+    var preview = document.getElementById('preview-panel');
+    previewActive = !previewActive;
+
+    if (previewActive) {
+        editor.style.display = 'none';
+        preview.style.display = 'block';
+        previewBtn.textContent = 'Edit';
+        previewBtn.className = 'btn-primary';
+        loadPreview();
+    } else {
+        editor.style.display = 'block';
+        preview.style.display = 'none';
+        previewBtn.textContent = 'Preview';
+        previewBtn.className = 'btn-secondary';
+    }
+}
+
+function loadPreview() {
+    var content = document.getElementById('editor-textarea').value;
+    var target = document.getElementById('preview-content');
+    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    target.innerHTML = '<p style="color: var(--body-quiet-color);">Loading preview...</p>';
+
+    fetch("{% url 'runbook:document_preview' document.pk %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'content=' + encodeURIComponent(content),
+    })
+    .then(function(response) { return response.text(); })
+    .then(function(html) { target.innerHTML = html; })
+    .catch(function() { target.innerHTML = '<p style="color: var(--error-fg, red);">Preview failed.</p>'; });
+}
+
+/* Tab key inserts spaces instead of changing focus */
+document.getElementById('editor-textarea').addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        var start = this.selectionStart;
+        var end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+    }
+});
+</script>
+{% endblock %}
