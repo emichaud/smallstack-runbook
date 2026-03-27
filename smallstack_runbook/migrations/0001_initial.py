@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="sections",
-                        to="smallstack_runbook.runbook",
+                        to="runbook.runbook",
                     ),
                 ),
             ],
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="next_versions",
-                        to="smallstack_runbook.document",
+                        to="runbook.document",
                     ),
                 ),
                 (
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="documents",
-                        to="smallstack_runbook.section",
+                        to="runbook.section",
                     ),
                 ),
             ],

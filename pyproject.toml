@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Documentation",
 ]
 dependencies = [
-    "django-smallstack>=0.8",
+    "django-smallstack>=0.8.18",
     "markdown>=3.5",
 ]
 
