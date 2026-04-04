@@ -6,7 +6,6 @@ from django.apps import AppConfig
 class RunbookConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "smallstack_runbook"
-    label = "runbook"
     verbose_name = "Runbook"
     help_content_dir = "content"
     help_section_slug = "runbook"
